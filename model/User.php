@@ -28,7 +28,7 @@ class User
         try {
             $statement = $this->db->prepare($statement);
             $statement->execute(array($id));
-            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
             return $result;
         } catch (PDOException $e) {
             exit($e->getMessage());
@@ -119,7 +119,7 @@ class User
 
     public function update($id, array $userData)
     {
-        $userById = $this->find($id)[0];
+        $userById = $this->find($id);
         if(! password_verify($userData['old_password'], $userById['password'])) {
             return array(
                 'status' => false,
@@ -136,9 +136,10 @@ class User
                 ':password' => $userData['password'],
                 ':id' => $id
             ));
+            $updatedUser = $this->find($id);
             return Array(
                 'status' => true,
-                'row_count'=> $statement->rowCount()
+                'updated_user'=> $updatedUser
             );
         } catch (PDOException $e) {
             exit($e->getMessage());
